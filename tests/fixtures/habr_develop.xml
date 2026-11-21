@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Habr — Разработка (fixture)</title>
+    <link>https://habr.com/ru/hubs/develop/</link>
+    <description>Тестовый фид для offline-демонстрации LegitFeed</description>
+    <item>
+      <title>Как мы строили ETL-пайплайн на Airflow и PostgreSQL</title>
+      <link>https://habr.com/ru/companies/example/articles/900001/</link>
+      <pubDate>Mon, 10 Nov 2025 09:00:00 GMT</pubDate>
+      <author>Иван Петров</author>
+      <category>Data Engineering</category>
+      <category>Python</category>
+      <description><![CDATA[
+        <p>В статье разбираем построение ETL-пайплайна: как организовать загрузку данных,
+        очистку и валидацию. Используем Python, Airflow и PostgreSQL. Показываем настройку
+        ретраев в DAG, идемпотентность задач и инкрементальную загрузку.</p>
+        <p>Отдельно обсуждаем мониторинг: метрики потребления памяти и времени выполнения
+        каждой задачи. Для связи пишите автору на ivan.petrov@example.com или по телефону
+        +7 (999) 123-45-67.</p>
+      ]]></description>
+    </item>
+    <item>
+      <title>Трансформеры для классификации коротких текстов: практический гайд</title>
+      <link>https://habr.com/ru/articles/900002/</link>
+      <pubDate>Tue, 11 Nov 2025 12:30:00 GMT</pubDate>
+      <category>Machine Learning</category>
+      <category>NLP</category>
+      <description><![CDATA[
+        <p>Обзор подходов к классификации коротких текстов: от TF-IDF и логистической
+        регрессии до нейросетей на трансформерах. Сравниваем метрики качества, разбираем
+        тонкости токенизации для русского языка и показываем, как собрать корпус текстов.</p>
+        <p>Приводим бенчмарки на открытых датасетах и обсуждаем, когда сложная модель
+        проигрывает простым методам машинного обучения.</p>
+      ]]></description>
+    </item>
+    <item>
+      <title>ВЫГОДНЫЕ КАЗИНО СТАВКИ!!! ЗАРАБОТОК БЕЗ ВЛОЖЕНИЙ!!!</title>
+      <link>https://habr.com/ru/articles/900003/</link>
+      <pubDate>Wed, 12 Nov 2025 00:01:00 GMT</pubDate>
+      <category>Offtopic</category>
+      <description><![CDATA[
+        ЗАРАБОТОК!!! КАЗИНО!!! СТАВКИ!!! https://spam1.example https://spam2.example
+        https://spam3.example https://spam4.example https://spam5.example
+        УСПЕЙ ЗАРАБОТАТЬ ПРЯМО СЕЙЧАС, ПЕРЕХОДИ ПО ССЫЛКЕ!!! НЕ УПУСТИ ШАНС!!!
+      ]]></description>
+    </item>
+    <item>
+      <title>Короткая заметка</title>
+      <link>https://habr.com/ru/articles/900004/</link>
+      <pubDate>Thu, 13 Nov 2025 08:00:00 GMT</pubDate>
+      <description><![CDATA[Слишком короткий текст, который должен быть отброшен очисткой.]]></description>
+    </item>
+    <item>
+      <title>Как мы строили ETL-пайплайн на Airflow и PostgreSQL</title>
+      <link>https://habr.com/ru/companies/example/articles/900001/</link>
+      <pubDate>Mon, 10 Nov 2025 09:00:00 GMT</pubDate>
+      <description><![CDATA[Дубликат предыдущей статьи для проверки дедупликации по URL и хешу.]]></description>
+    </item>
+    <item>
+      <title>Правовые аспекты веб-скрапинга: robots.txt, ToS и 152-ФЗ</title>
+      <link>https://habr.com/ru/articles/900005/</link>
+      <pubDate>Fri, 14 Nov 2025 15:00:00 GMT</pubDate>
+      <category>Legal</category>
+      <description><![CDATA[
+        <p>Разбираем юридические ограничения веб-краулинга в России: требования 152-ФЗ о
+        персональных данных, значение robots.txt по RFC 9309 и условия использования сайтов.
+        Обсуждаем статью 272 УК РФ и границы допустимого при автоматизированном сборе.</p>
+        <p>Приводим чек-лист легитимного сбора: проверка лицензий, rate limiting, уважение
+        Retry-After, минимизация хранимых данных и указание источника.</p>
+      ]]></description>
+    </item>
+    <item>
+      <title>Сравнение SQLAlchemy и Django ORM на больших проектах</title>
+      <link>https://habr.com/ru/articles/900006/</link>
+      <pubDate>Sat, 15 Nov 2025 10:20:00 GMT</pubDate>
+      <description><![CDATA[
+        <p>Практическое сравнение двух популярных ORM для Python: SQLAlchemy и Django ORM.
+        Смотрим на производительность запросов, удобство миграций, работу с async и типизацию.
+        Показываем примеры на PostgreSQL и обсуждаем подводные камни ленивой загрузки.</p>
+      ]]></description>
+    </item>
+    <item>
+      <title>Мониторинг качества данных в проде: алерты на аномалии</title>
+      <link>https://habr.com/ru/articles/900007/</link>
+      <pubDate>Sun, 16 Nov 2025 18:45:00 GMT</pubDate>
+      <category>Data Engineering</category>
+      <description><![CDATA[
+        <p>Как настроить алерты на аномалии в потоковых данных: z-score, скользящее среднее
+        и статистические тесты. Разбираем примеры на Python с pandas и показываем, как
+        объяснять аномалии бизнесу на понятном языке.</p>
+        <p>Отдельное внимание уделяем ложным срабатываниям и настройке порогов для
+        pipeline с разными источниками данных.</p>
+      ]]></description>
+    </item>
+  </channel>
+</rss>

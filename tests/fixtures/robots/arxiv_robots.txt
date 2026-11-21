@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /private/
+Disallow: /*.pdf$
+Request-rate: 1/10
+
+User-agent: LegitFeedBot
+Crawl-delay: 5

@@ -1,0 +1,76 @@
+# Реестр источников: то, что мы вправе собирать.
+#
+# Поля:
+#   id                 — стабильный идентификатор (идёт в датасет)
+#   name               — человекочитаемое имя
+#   feed_url           — URL публичного RSS/Atom-фида
+#   site_url           — сайт-владелец (для robots.txt и отчёта)
+#   license            — лицензия контента (обязательно указать явно)
+#   license_url        — ссылка на условия использования / лицензию
+#   tos_allow_feed     — проверено ли, что ToS разрешает чтение фида
+#   contains_personal_data — публикует ли источник персональные данные
+#   rate_limit_rps     — максимальная частота запросов (запросов/сек)
+#   min_delay_seconds  — минимальная пауза между запросами
+#   categories         — тематики (для weak-supervision разметки)
+#   approved_by        — кто и когда провёл правовой аудит (ответственный)
+#   approved_at        — дата аудита (ISO)
+#
+# ! Источник БЕЗ аудита (approved_at / approved_by пустые) при сборке в режиме
+# ! strict не собирается: см. legal_policy.yaml -> require_source_audit.
+
+sources:
+  - id: opendata_habr
+    name: "Хабр — Habr Hub: Разработка"
+    feed_url: "https://habr.com/ru/rss/hub/develop/"
+    site_url: "https://habr.com"
+    license: "Habr ToS: персональное некоммерческое использование, RSS разрешён"
+    license_url: "https://habr.com/ru/docs/help/rules/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.2
+    min_delay_seconds: 5.0
+    categories: [big_data, ai, engineering]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: python_insider
+    name: "Python Insider (python.org)"
+    feed_url: "https://feeds.feedburner.com/PythonInsider"
+    site_url: "https://pythoninsider.blogspot.com"
+    license: "CC BY 4.0 (блог Python Software Foundation)"
+    license_url: "https://www.python.org/community/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.2
+    min_delay_seconds: 5.0
+    categories: [python, engineering]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: arxiv_cs_lg
+    name: "arXiv cs.LG (Machine Learning)"
+    feed_url: "http://export.arxiv.org/rss/cs.LG"
+    site_url: "https://arxiv.org"
+    license: "arXiv API/Feeds — publicly available, arXiv non-exclusive license"
+    license_url: "https://info.arxiv.org/help/api/tou.html"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.33
+    min_delay_seconds: 3.0
+    categories: [ai, machine_learning, nlp]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: opendata_ria
+    name: "РИА Новости — RSS (пример НЕодобренного источника)"
+    feed_url: "https://ria.ru/export/rss2/archive/index.xml"
+    site_url: "https://ria.ru"
+    license: "ToS ограничивает автоматизированный сбор — требуется договор"
+    license_url: "https://ria.ru/docs/about/copyright.html"
+    tos_allow_feed: false
+    contains_personal_data: true
+    rate_limit_rps: 0.1
+    min_delay_seconds: 10.0
+    categories: [news]
+    approved_by: ""
+    approved_at: ""

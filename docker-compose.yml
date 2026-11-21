@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: legitfeed
+      POSTGRES_PASSWORD: legitfeed
+      POSTGRES_DB: legitfeed
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U legitfeed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      LEGITFEED_DATABASE_URL: postgresql+psycopg2://legitfeed:legitfeed@postgres:5432/legitfeed
+      LEGITFEED_OFFLINE: "false"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+
+  demo:
+    # Разовая offline-демонстрация пайплайна без PostgreSQL
+    build: .
+    command: python -m legitfeed.cli demo
+    environment:
+      LEGITFEED_OFFLINE: "true"
+      LEGITFEED_DATABASE_URL: sqlite+pysqlite:////app/legitfeed.db
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  pgdata:

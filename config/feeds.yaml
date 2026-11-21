@@ -1,0 +1,28 @@
+# Список фидов для сбора. Источники описаны в config/sources.yaml.
+#
+#   source_id — ссылка на sources.yaml
+#   enabled   — включён ли сбор
+#   limit     — сколько последних записей брать за прогон (экономим трафик)
+#   fixture   — локальный файл с сохранённым фидом (offline-режим и тесты);
+#               используется, если задан --offline или сбор из сети падает
+
+feeds:
+  - source_id: opendata_habr
+    enabled: true
+    limit: 20
+    fixture: tests/fixtures/habr_develop.xml
+
+  - source_id: python_insider
+    enabled: true
+    limit: 20
+    fixture: tests/fixtures/python_insider.xml
+
+  - source_id: arxiv_cs_lg
+    enabled: true
+    limit: 25
+    fixture: tests/fixtures/arxiv_cs_lg.xml
+
+  # Отключён: ToS запрещает автоматизированный сбор.
+  - source_id: opendata_ria
+    enabled: false
+    limit: 0

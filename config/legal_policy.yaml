@@ -1,0 +1,70 @@
+# Машиночитаемая юридическая политика проекта.
+# Применяется кодом (legitfeed/legal/policy.py) и проверяется тестами (tests/test_legal.py).
+
+version: 1
+
+robots:
+  # RFC 9309: если robots.txt недоступен (5xx / сеть) — источник ПРОПУСКАЕТСЯ.
+  fail_closed_on_server_error: true
+  # 401/403 на robots.txt трактуем как полный запрет.
+  disallow_on_auth_required: true
+  # Учитывать Crawl-delay.
+  honor_crawl_delay: true
+  # Учитывать поля Request-rate (RFC 9309 §2.2.4 legacy).
+  honor_request_rate: true
+  # Применять правила к <site_url>/<feed_path> и к <feed_url>.
+  check_both_site_and_feed: true
+
+rate_limiting:
+  # Жёсткий глобальный потолок вежливости, даже если сайт разрешает чаще.
+  max_global_rps: 2.0
+  # Минимальная пауза между запросами к одному хосту.
+  min_delay_seconds: 2.0
+  # Экспоненциальный backoff при 429/503.
+  respect_retry_after: true
+  backoff_base_seconds: 1.5
+  max_retries: 3
+
+terms_of_service:
+  # Источник без подтверждённого разрешения фидов не собирается.
+  require_tos_allow_feed: true
+  # Источник без записи о правовом аудите не собирается в strict-режиме.
+  require_source_audit: true
+
+personal_data:
+  # 152-ФЗ: минимизация. Мы не собираем и не храним ПДн.
+  mask_pii: true
+  # Какие типы ПДн маскируются.
+  mask_types: [email, phone, snils, passport, url_with_query_token, ip]
+  # Запрещённые к сбору поля фида (по именам тегов).
+  forbidden_fields: [author_email, author_phone]
+  # Не собирать комментарии пользователей (UGC с ПДн).
+  skip_comments: true
+
+forbidden_actions:
+  # Ст. 272 УК РФ: неправомерный доступ к охраняемой законом информации.
+  - "bypass_authorization"          # обход логина/подписки
+  - "bypass_paywall"
+  - "bypass_captcha"
+  - "bypass_ip_blocking_via_proxy_rotation"
+  - "access_non_public_endpoints"
+  - "parameter_fuzzing"
+  - "credential_harvesting"
+  # Ст. 133 УК РФ / 152-ФЗ
+  - "collect_special_categories_personal_data"   # здоровье, вера, политические взгляды, интимная жизнь
+  - "collect_children_data"
+
+storage:
+  # Храним только нормализованный очищенный текст, не сырые HTML-страницы с ПДн.
+  keep_raw_html: false
+  # Срок хранения сырых ответов фидов (дней); после — удаляются.
+  raw_retention_days: 30
+  # Каждая запись датасета должна иметь source_url, license, snapshot date.
+  provenance_required: true
+
+attribution:
+  respect_copyright: true
+  # В датасете храним ссылку на оригинал и лицензию источника.
+  export_source_license: true
+  # Не более N символов в поле excerpt для датасета (короткая цитата, fair use).
+  max_excerpt_chars: 1000

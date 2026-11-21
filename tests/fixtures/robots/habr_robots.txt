@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /search
+Disallow: /api/
+Allow: /api/public/
+Crawl-delay: 2
+
+User-agent: LegitFeedBot
+Disallow: /search
+Allow: /
+Crawl-delay: 3
+Sitemap: https://habr.com/sitemap.xml

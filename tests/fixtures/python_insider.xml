@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Python Insider (fixture)</title>
+  <link href="https://pythoninsider.blogspot.com/"/>
+  <updated>2025-11-18T10:00:00Z</updated>
+  <id>urn:legitfeed:python-insider</id>
+  <entry>
+    <title>Python 3.14 beta: что нового для разработчиков данных</title>
+    <link href="https://pythoninsider.blogspot.com/2025/11/python-314-beta.html"/>
+    <id>urn:legitfeed:pi:1</id>
+    <updated>2025-11-17T10:00:00Z</updated>
+    <published>2025-11-17T09:00:00Z</published>
+    <author><name>Python Release Team</name></author>
+    <category term="python"/>
+    <summary type="html">
+      &lt;p&gt;Вышел Python 3.14 beta. Обсуждаем изменения в asyncio, улучшения typing и
+      новинки стандартной библиотеки. Для аналитиков данных важны ускорения pandas и numpy
+      на новых версиях интерпретатора, а также улучшения в multiprocessing.&lt;/p&gt;
+      &lt;p&gt;Полный список изменений доступен в changelog. Контакты: release@python.org&lt;/p&gt;
+    </summary>
+  </entry>
+  <entry>
+    <title>PyPI security update: token-based uploads now required</title>
+    <link href="https://pythoninsider.blogspot.com/2025/11/pypi-tokens.html"/>
+    <id>urn:legitfeed:pi:2</id>
+    <updated>2025-11-15T12:00:00Z</updated>
+    <author><name>PyPI Team</name></author>
+    <category term="python"/>
+    <category term="security"/>
+    <summary type="html">
+      &lt;p&gt;PyPI now requires API tokens for all package uploads. Legacy password
+      authentication is disabled. Maintainers must configure tokens in their CI pipelines
+      and rotate secrets regularly. The change reduces the risk of supply-chain attacks
+      and improves auditability of package publishing.&lt;/p&gt;
+    </summary>
+  </entry>
+  <entry>
+    <title>Announcing a new asyncio debugging tool</title>
+    <link href="https://pythoninsider.blogspot.com/2025/11/asyncio-debug.html"/>
+    <id>urn:legitfeed:pi:3</id>
+    <updated>2025-11-12T09:30:00Z</updated>
+    <author><name>CPython Core Devs</name></author>
+    <category term="python"/>
+    <summary type="html">
+      &lt;p&gt;A new asyncio debugging tool helps developers inspect task trees, find
+      blocked coroutines and trace event-loop stalls. It integrates with the standard
+      debugger and shows where a task was created. For data pipelines built on asyncio
+      this simplifies diagnosing slow consumers and deadlocks in interview queues.&lt;/p&gt;
+    </summary>
+  </entry>
+  <entry>
+    <title>Pandas 3.0 roadmap highlights</title>
+    <link href="https://pythoninsider.blogspot.com/2025/11/pandas-3.html"/>
+    <id>urn:legitfeed:pi:4</id>
+    <updated>2025-11-10T08:00:00Z</updated>
+    <author><name>Data Team</name></author>
+    <category term="data"/>
+    <category term="python"/>
+    <summary type="html">
+      &lt;p&gt;The pandas 3.0 roadmap focuses on copy-on-write semantics, better arrow
+      integration and a cleaner API for string operations. Data engineers will benefit
+      from lower memory usage and predictable performance when transforming large
+      dataset tables in ETL pipelines.&lt;/p&gt;
+    </summary>
+  </entry>
+</feed>

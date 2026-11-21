@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <channel>
+    <title>arXiv cs.LG (fixture)</title>
+    <link>https://arxiv.org/list/cs.LG/recent</link>
+    <description>Machine Learning</description>
+    <item>
+      <title>Explainable Anomaly Detection in Noisy Web Corpora</title>
+      <link>http://arxiv.org/abs/2511.00001v1</link>
+      <pubDate>Mon, 17 Nov 2025 18:00:00 GMT</pubDate>
+      <category>cs.LG</category>
+      <description>We present a hybrid anomaly detection method for noisy web corpora that
+        combines rule-based filters with statistical z-score tests and TF-IDF centroid
+        distance. Each detected anomaly receives a natural-language explanation, which
+        improves reviewer trust in data cleaning pipelines for machine learning training
+        data. Experiments on crawled feed datasets show a substantial reduction in false
+        positives compared to rules alone.</description>
+    </item>
+    <item>
+      <title>Weak Supervision for Topic Labeling of Technical News Feeds</title>
+      <link>http://arxiv.org/abs/2511.00002v1</link>
+      <pubDate>Tue, 18 Nov 2025 18:00:00 GMT</pubDate>
+      <category>cs.LG</category>
+      <category>cs.NLP</category>
+      <description>We study weak supervision strategies for assigning topic labels to
+        technical news feeds without manual annotation. Keyword rules, source metadata and
+        confidence weights are combined to produce a labeled dataset suitable for training
+        a text classifier. We analyze label noise, class imbalance and the effect of
+        cleaning steps on downstream model quality.</description>
+    </item>
+    <item>
+      <title>Respectful Crawling: Lessons from Robots Exclusion Protocol Compliance</title>
+      <link>http://arxiv.org/abs/2511.00003v1</link>
+      <pubDate>Wed, 19 Nov 2025 18:00:00 GMT</pubDate>
+      <category>cs.LG</category>
+      <category>cs.CY</category>
+      <description>Large language model training increasingly relies on web data. We
+        measure how well crawlers comply with the Robots Exclusion Protocol (RFC 9309),
+        analyze crawl-delay usage and quantify the legal and ethical risks of ignoring
+        terms of service. We propose a compliance checklist for dataset builders who
+        collect public feeds.</description>
+    </item>
+    <item>
+      <title>A Survey of Text Deduplication Methods for Training Corpora</title>
+      <link>http://arxiv.org/abs/2511.00004v1</link>
+      <pubDate>Thu, 13 Nov 2025 18:00:00 GMT</pubDate>
+      <category>cs.LG</category>
+      <description>Duplicate and near-duplicate documents degrade the quality of machine
+        learning datasets. We survey exact hashing, MinHash and SimHash approaches, compare
+        their precision and recall on web-scale corpora, and discuss practical trade-offs
+        in memory usage and compute cost for data engineering pipelines.</description>
+    </item>
+    <item>
+      <title>Tokenization Artifacts and Dataset Quality in Low-Resource Languages</title>
+      <link>http://arxiv.org/abs/2511.00005v1</link>
+      <pubDate>Fri, 14 Nov 2025 18:00:00 GMT</pubDate>
+      <category>cs.LG</category>
+      <category>cs.CL</category>
+      <description>We investigate how tokenization artifacts affect the quality of
+        datasets for low-resource languages. Broken encodings, mojibake and inconsistent
+        normalization introduce noise that harms neural model training. We propose
+        automated quality checks that flag such anomalies before dataset release.</description>
+    </item>
+  </channel>
+</rss>
