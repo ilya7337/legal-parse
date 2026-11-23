@@ -14,7 +14,12 @@ from pathlib import Path
 
 from config.settings import Settings, get_settings
 from legitfeed.anomaly.detector import AnomalyDetector
+from legitfeed.collect.api_collector import APICollector
+from legitfeed.collect.dataset_importer import DatasetImporter
 from legitfeed.collect.feed_collector import FeedCollector, dedupe_raw
+from legitfeed.collect.html_collector import HTMLCollector
+from legitfeed.collect.http_client import PoliteHttpClient
+from legitfeed.collect.specs import load_api_specs, load_dataset_specs, load_page_specs
 from legitfeed.dataset.builder import DatasetBundle, build_dataset
 from legitfeed.etl.cleaner import Cleaner
 from legitfeed.legal.auditor import AuditResult, RobotsFetcher, audit_source
@@ -59,6 +64,14 @@ def _write_jsonl(path: Path, records: list[dict]) -> None:
             f.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")
 
 
+def _collection_stats(result) -> dict:
+    """Статистика одного CollectionResult (api/page/dataset)."""
+    return {
+        "sources": [s.as_dict() for s in result.stats],
+        "total_items": len(result.items),
+    }
+
+
 class Pipeline:
     """Полный конвейер «от фида до датасета»."""
 
@@ -73,7 +86,12 @@ class Pipeline:
         self.policy = policy or load_policy()
         self.registry = registry or load_registry()
         self.repo = repository or Repository()
-        self.collector = FeedCollector(self.settings, self.policy, robots_fetcher=RobotsFetcher())
+        robots_fetcher = RobotsFetcher()
+        client = PoliteHttpClient(self.settings, self.policy)
+        self.collector = FeedCollector(self.settings, self.policy, client=client, robots_fetcher=robots_fetcher)
+        self.api_collector = APICollector(self.settings, self.policy, client=client, robots_fetcher=robots_fetcher)
+        self.html_collector = HTMLCollector(self.settings, self.policy, client=client, robots_fetcher=robots_fetcher)
+        self.dataset_importer = DatasetImporter(self.settings, self.policy, client=client, robots_fetcher=robots_fetcher)
         self.cleaner = Cleaner(self.settings, self.policy)
         self.detector = AnomalyDetector(
             z_threshold=self.settings.zscore_threshold,
@@ -86,10 +104,16 @@ class Pipeline:
 
     def stage_audit(self, strict: bool = True) -> list[AuditResult]:
         fetcher = self.collector.robots_fetcher
-        results = [
-            audit_source(source, policy=self.policy, robots_fetcher=fetcher, strict=strict)
-            for source in self.registry.sources.values()
-        ]
+        results = []
+        for source in self.registry.sources.values():
+            # для готовых датасетов robots.txt неприменим (это не краулинг)
+            check_robots = source.kind != "dataset"
+            results.append(
+                audit_source(
+                    source, policy=self.policy, robots_fetcher=fetcher,
+                    strict=strict, check_robots=check_robots,
+                )
+            )
         md, js = build_report(results, self.policy).save()
         self._artifacts.update({"legal_audit_md": md, "legal_audit_json": js})
         return results
@@ -104,6 +128,64 @@ class Pipeline:
         _write_jsonl(path, [i.model_dump() for i in deduped])
         self._artifacts["raw_items"] = path
         return deduped, result.audits, result.stats_dict()
+
+    def _enabled_specs(self, specs):
+        """Отфильтровать включённые спецификации и подставить Source по source_id."""
+        pairs = []
+        for spec in specs:
+            if not getattr(spec, "enabled", True):
+                continue
+            try:
+                source = self.registry.get(spec.source_id)
+            except KeyError:
+                continue
+            pairs.append((spec, source))
+        return pairs
+
+    def stage_collect_all(self) -> tuple[list[RawItem], list[AuditResult], dict]:
+        """Собрать все виды ресурсов: фиды + API + HTML-страницы + датасеты."""
+        all_raw: list[RawItem] = []
+        all_audits: list[AuditResult] = []
+        stats: dict = {}
+
+        pairs = self.registry.enabled()
+        for source, _ in pairs:
+            self.repo.upsert_source(source)
+        feed_result = self.collector.collect(pairs)
+        all_raw.extend(feed_result.items)
+        all_audits.extend(feed_result.audits)
+        stats["feeds"] = feed_result.stats_dict()
+
+        api_pairs = self._enabled_specs(load_api_specs())
+        for _, source in api_pairs:
+            self.repo.upsert_source(source)
+        api_result = self.api_collector.collect(api_pairs)
+        all_raw.extend(api_result.items)
+        all_audits.extend(api_result.audits)
+        stats["apis"] = _collection_stats(api_result)
+
+        page_pairs = self._enabled_specs(load_page_specs())
+        for _, source in page_pairs:
+            self.repo.upsert_source(source)
+        page_result = self.html_collector.collect(page_pairs)
+        all_raw.extend(page_result.items)
+        all_audits.extend(page_result.audits)
+        stats["pages"] = _collection_stats(page_result)
+
+        ds_pairs = self._enabled_specs(load_dataset_specs())
+        for _, source in ds_pairs:
+            self.repo.upsert_source(source)
+        ds_result = self.dataset_importer.collect(ds_pairs)
+        all_raw.extend(ds_result.items)
+        all_audits.extend(ds_result.audits)
+        stats["datasets"] = _collection_stats(ds_result)
+
+        deduped = dedupe_raw(all_raw)
+        path = self.settings.path("raw") / "raw_items.jsonl"
+        _write_jsonl(path, [i.model_dump() for i in deduped])
+        self._artifacts["raw_items"] = path
+        stats["total_items"] = len(deduped)
+        return deduped, all_audits, stats
 
     def stage_clean(self, raw_items: list[RawItem]) -> tuple[list[CleanDoc], dict]:
         self.cleaner = Cleaner(self.settings, self.policy)
@@ -170,7 +252,7 @@ class Pipeline:
                 }
 
             if "collect" in stages:
-                raw_items, audits, stats = self.stage_collect()
+                raw_items, audits, stats = self.stage_collect_all()
                 if not result.audits:
                     result.audits = audits
                 result.raw_items = raw_items

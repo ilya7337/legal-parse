@@ -166,7 +166,10 @@ def test_registry_sources_have_license_and_feed_urls(registry):
     assert len(registry) >= 3
     for source in registry.sources.values():
         assert source.license.strip()
-        assert str(source.feed_url).startswith("http")
+        assert str(source.site_url).startswith("http")
+        if source.kind == "feed":
+            assert source.feed_url is not None
+            assert str(source.feed_url).startswith("http")
 
 
 def test_registry_rejects_unknown_source(registry):

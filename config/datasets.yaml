@@ -1,0 +1,27 @@
+# Готовые датасеты. Лицензия обязательна (проверяется аудитом), robots.txt неприменим.
+# source_type: local (файл), url (файл по HTTP), huggingface (библиотека `datasets`).
+
+datasets:
+  - source_id: opendata_articles
+    source_type: local
+    path: tests/fixtures/dataset_articles.csv
+    fmt: csv
+    fields:
+      title: title
+      text: text
+      url: url
+      author: author
+    enabled: true
+    limit: 100
+
+  - source_id: opendata_news
+    source_type: local
+    path: tests/fixtures/dataset_news.jsonl
+    fmt: jsonl
+    fields:
+      title: title
+      text: text
+      url: url
+      published_at: published_at
+    enabled: true
+    limit: 100

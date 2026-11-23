@@ -69,9 +69,9 @@ def cmd_collect(args) -> int:
     from legitfeed.pipeline.runner import Pipeline
 
     pipeline = Pipeline(settings=settings)
-    items, _audits, stats = pipeline.stage_collect()
+    items, _audits, stats = pipeline.stage_collect_all()
     _print(stats)
-    print(f"\nСохранено сырых записей: {len(items)} -> {pipeline._artifacts.get('raw_items')}")
+    print(f"\nСохранено сырых записей (фиды+API+страницы+датасеты): {len(items)} -> {pipeline._artifacts.get('raw_items')}")
     return 0
 
 
@@ -149,6 +149,11 @@ def _seed_robots_cache(settings) -> None:
         "https://habr.com/robots.txt": "habr_robots.txt",
         "https://pythoninsider.blogspot.com/robots.txt": "arxiv_robots.txt",
         "https://arxiv.org/robots.txt": "arxiv_robots.txt",
+        # API / HTML-источники (разрешено всё — публичные ресурсы)
+        "https://api.github.com/robots.txt": "allow_all_robots.txt",
+        "http://hn.algolia.com/robots.txt": "allow_all_robots.txt",
+        "https://peps.python.org/robots.txt": "allow_all_robots.txt",
+        "https://en.wikipedia.org/robots.txt": "allow_all_robots.txt",
     }
     for url, filename in mapping.items():
         text = (fixtures / filename).read_text(encoding="utf-8")

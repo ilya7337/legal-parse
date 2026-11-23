@@ -18,7 +18,8 @@ class Source(BaseModel):
 
     id: str
     name: str
-    feed_url: HttpUrl
+    kind: str = "feed"  # feed | api | page | dataset
+    feed_url: HttpUrl | None = None
     site_url: HttpUrl
     license: str
     license_url: str | None = None
@@ -57,8 +58,8 @@ class Source(BaseModel):
 
     @property
     def host(self) -> str:
-        parts = urlsplit(str(self.feed_url))
-        return parts.netloc.lower()
+        target = self.feed_url or self.site_url
+        return urlsplit(str(target)).netloc.lower()
 
 
 class FeedEntry(BaseModel):

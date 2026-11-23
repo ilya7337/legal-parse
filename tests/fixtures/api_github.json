@@ -1,0 +1,23 @@
+[
+  {
+    "html_url": "https://github.com/psf/requests/issues/6500",
+    "title": "Add automatic retry for transient errors",
+    "body": "We should support automatic retries with an exponential backoff strategy for transient network failures in the requests library session layer, so callers do not need to wrap every request manually.",
+    "created_at": "2025-11-10T09:30:00Z",
+    "user": {"login": "octocat"}
+  },
+  {
+    "html_url": "https://github.com/psf/requests/issues/6501",
+    "title": "Improve timeout handling documentation",
+    "body": "The documentation for connect and read timeouts is unclear. We should add examples showing how to set total and per-read timeouts when using the requests library with a session.",
+    "created_at": "2025-11-11T11:00:00Z",
+    "user": {"login": "hubber"}
+  },
+  {
+    "html_url": "https://github.com/psf/requests/issues/6502",
+    "title": "Support HTTP/2 via an optional adapter",
+    "body": "Add an optional HTTP/2 adapter so that users can benefit from multiplexing when the server supports it, and discuss how it interacts with the existing urllib3 based transport layer.",
+    "created_at": "2025-11-12T14:15:00Z",
+    "user": {"login": "devuser"}
+  }
+]

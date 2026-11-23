@@ -42,6 +42,10 @@ LegitFeed — MVP аналога Whytrend: непрерывный, юридич�
         │                    After + дисковый кэш; НЕ умеет    │
         │                    обходить блокировки                │
         │  feed_collector.py feedparser, фикстуры, аудит-гейт  │
+        │  api_collector.py  публичные JSON API (items_path)   │
+        │  html_collector.py извлечение текста из HTML         │
+        │  dataset_importer  локальные/URL/HuggingFace датасеты│
+        │  specs.py          конфиги apis/pages/datasets.yaml  │
         └───────────────────────┬─────────────────────────────┘
                                 │ RawItem[]
         ┌───────────────────────▼─────────────────────────────┐

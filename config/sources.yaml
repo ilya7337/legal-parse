@@ -74,3 +74,83 @@ sources:
     categories: [news]
     approved_by: ""
     approved_at: ""
+
+  - id: github_psf_issues
+    name: "GitHub API — psf/requests (issues)"
+    kind: api
+    site_url: "https://api.github.com"
+    license: "GitHub API ToS: публичный API с rate limiting; contents issues — материалы авторов"
+    license_url: "https://docs.github.com/en/site-policy"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.5
+    min_delay_seconds: 2.0
+    categories: [python, engineering]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: hn_algolia
+    name: "Hacker News Algolia API"
+    kind: api
+    site_url: "http://hn.algolia.com"
+    license: "HN Algolia API публичный; контент по правилам Hacker News"
+    license_url: "https://news.ycombinator.com/newsguidelines.html"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.5
+    min_delay_seconds: 2.0
+    categories: [engineering, news]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: peps_python
+    name: "PEP — Python Enhancement Proposals"
+    kind: page
+    site_url: "https://peps.python.org"
+    license: "PSF: тексты PEP свободно распространяются"
+    license_url: "https://peps.python.org/pep-0001/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.5
+    min_delay_seconds: 2.0
+    categories: [python, engineering]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: wikipedia_ml
+    name: "Wikipedia — Machine learning"
+    kind: page
+    site_url: "https://en.wikipedia.org"
+    license: "CC BY-SA 4.0"
+    license_url: "https://en.wikipedia.org/wiki/Wikipedia:Text_of_the_Creative_Commons_Attribution-ShareAlike_4.0_International_License"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.5
+    min_delay_seconds: 2.0
+    categories: [ai, machine_learning]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: opendata_articles
+    name: "Открытый датасет статей (CSV, CC0)"
+    kind: dataset
+    site_url: "https://opendata.example.org"
+    license: "CC0 1.0 (public domain)"
+    license_url: "https://creativecommons.org/publicdomain/zero/1.0/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    categories: [general, dataset]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
+  - id: opendata_news
+    name: "Открытый датасет новостей (JSONL, CC BY 4.0)"
+    kind: dataset
+    site_url: "https://opendata.example.org"
+    license: "CC BY 4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    categories: [news, dataset]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"

@@ -16,7 +16,7 @@ MVP-система мониторинга классифицированных �
 | # | Этап | Модуль | Что происходит |
 |---|------|--------|----------------|
 | 0 | Правовой аудит источника | `legitfeed.legal.source_audit` | robots.txt (RFC 9309), ToS-эвристики, классификация источника, персональные данные |
-| 1 | Легитимный сбор (фиды) | `legitfeed.collect.feed_collector` | HTTP с User-Agent, rate limiting, robots.txt, экспоненциальный backoff, кэш ответов |
+| 1 | Легитимный сбор (фиды + API + страницы + датасеты) | `legitfeed.collect.*` | вежливый HTTP (rate limit, backoff, кэш), RSS/Atom; JSON API; извлечение текста из HTML; импорт готовых датасетов |
 | 2 | Очистка (ETL) | `legitfeed.etl.cleaner` | дедуп по canonical-URL/хешу, удаление HTML-шума, нормализация текста, **маскирование ПДн** |
 | 3 | Детекция и объяснение аномалий (NLP) | `legitfeed.anomaly.detector` | правила + статистика (z-score/EWMA) + TF-IDF косинус + объяснение на естественном языке |
 | 4 | Хранение | `legitfeed.storage` | SQLite по умолчанию, PostgreSQL (`LEGITFEED_DATABASE_URL`) в проде |
@@ -26,6 +26,21 @@ MVP-система мониторинга классифицированных �
 - `legitfeed.api` — FastAPI: статус пайплайна, документы, аномалии, скачивание датасета;
 - `legitfeed.scheduler` — APScheduler: непрерывный мониторинг по расписанию;
 - `legitfeed.legal.auditor_report` — генерация Markdown-отчёта правового аудита.
+
+### Источники данных (4 вида)
+
+Все виды проходят один правовой аудит и выдают одинаковый `RawItem`, поэтому
+дальше идут через общий конвейер:
+
+| Вид | Конфиг | Модуль | Что собирает |
+|-----|--------|--------|--------------|
+| RSS/Atom фиды | `config/feeds.yaml` | `collect.feed_collector` | публичные фиды |
+| JSON API | `config/apis.yaml` | `collect.api_collector` | публичные API (без авторизации): `items_path`, маппинг полей, пагинация-лимит |
+| HTML-страницы | `config/pages.yaml` | `collect.html_collector` | основной текст статьи (readability-подобно), title/meta-дата/canonical |
+| Готовые датасеты | `config/datasets.yaml` | `collect.dataset_importer` | локальный CSV/JSONL/JSON, файл по URL, HuggingFace (`datasets`) |
+
+Правовой профиль каждого источника — в `config/sources.yaml` (`kind: feed|api|page|dataset`).
+Для датасетов robots.txt не применяется (это не краулинг), но лицензия обязательна.
 
 ---
 
@@ -124,7 +139,8 @@ pytest --cov=legitfeed --cov-report=term-missing
 ## 6. Структура
 
 ```
-config/                 feeds.yaml, sources.yaml, legal_policy.yaml, settings.py
+config/                 feeds.yaml, apis.yaml, pages.yaml, datasets.yaml,
+                        sources.yaml, legal_policy.yaml, settings.py
 legitfeed/
   legal/                robots, tos-эвристики, аудит источника, отчёт
   collect/              HTTP-клиент с rate limit/backoff/кэшем, сборщик фидов

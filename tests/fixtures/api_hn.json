@@ -1,0 +1,18 @@
+{
+  "hits": [
+    {
+      "title": "Python 3.14 released",
+      "url": "https://news.example.com/python314",
+      "story_text": "The Python team announced the release of Python 3.14 with improved typing support, faster asyncio and several standard library additions useful for data engineers.",
+      "author": "pg",
+      "created_at": "2025-11-10T12:00:00Z"
+    },
+    {
+      "title": "Show HN: A respectful crawler for open feeds",
+      "url": "https://news.example.com/crawler",
+      "story_text": "I built a crawler that respects robots.txt and rate limits while collecting public RSS feeds for machine learning dataset preparation.",
+      "author": "ml_dev",
+      "created_at": "2025-11-11T08:00:00Z"
+    }
+  ]
+}

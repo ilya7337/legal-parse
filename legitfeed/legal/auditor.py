@@ -132,12 +132,19 @@ class RobotsFetcher:
 def audit_source(
     source: Source,
     *,
+    paths: list[str] | None = None,
+    check_robots: bool = True,
     policy: LegalPolicy | None = None,
     robots_fetcher: RobotsFetcher | None = None,
     tos_text: str | None = None,
     strict: bool = True,
 ) -> AuditResult:
-    """Провести правовой аудит одного источника."""
+    """Провести правовой аудит одного источника.
+
+    ``paths`` — URL/пути, проверяемые против robots.txt (для API и HTML-страниц).
+    Для фидов по умолчанию берётся ``source.feed_url``. ``check_robots=False`` —
+    пропустить robots.txt (для готовых датасетов, где robots неприменим).
+    """
     policy = policy or load_policy()
     settings = get_settings()
     reasons: list[str] = []
@@ -154,38 +161,47 @@ def audit_source(
         allowed = False
         reasons.append("Не указана лицензия контента источника")
 
-    # 2. robots.txt
-    fetcher = robots_fetcher or RobotsFetcher(
-        user_agent=settings.user_agent, offline=settings.offline
-    )
-    robots = fetcher.get(str(source.site_url))
-    feed_url = str(source.feed_url)
-
+    # 2. robots.txt (пропускается для готовых датасетов, check_robots=False)
     checked_paths: dict[str, bool] = {}
-    paths_to_check = [feed_url]
-    if policy.robots.check_both_site_and_feed:
-        paths_to_check.append(urljoin(str(source.site_url), "/"))
+    robots_status: int | None = None
+    robots_url = ""
+    crawl_delay: float | None = None
+    request_rate: tuple[float, float] | None = None
 
-    for p in paths_to_check:
-        ok = robots.is_allowed(p, settings.user_agent)
-        checked_paths[p] = ok
-        if not ok:
-            allowed = False
-            reasons.append(f"robots.txt запрещает доступ к {p} (RFC 9309)")
-
-    if robots.unavailable and policy.robots.fail_closed_on_server_error:
-        allowed = False
-        reasons.append(
-            f"robots.txt недоступен (HTTP {robots.status}); fail-closed: источник пропущен"
+    if check_robots:
+        fetcher = robots_fetcher or RobotsFetcher(
+            user_agent=settings.user_agent, offline=settings.offline
         )
-    if robots.forbidden_all and policy.robots.disallow_on_auth_required:
-        allowed = False
-        reasons.append("robots.txt требует авторизации (401/403): доступ запрещён")
+        robots = fetcher.get(str(source.site_url))
+        robots_status = robots.status
+        robots_url = robots.source_url or _robots_url(str(source.site_url))
 
-    crawl_delay = robots.crawl_delay(settings.user_agent) if policy.robots.honor_crawl_delay else None
-    request_rate = (
-        robots.request_rate(settings.user_agent) if policy.robots.honor_request_rate else None
-    )
+        if paths is None:
+            paths = [str(source.feed_url)] if source.feed_url else []
+        paths_to_check = list(paths)
+        if policy.robots.check_both_site_and_feed:
+            paths_to_check.append(urljoin(str(source.site_url), "/"))
+
+        for p in paths_to_check:
+            ok = robots.is_allowed(p, settings.user_agent)
+            checked_paths[p] = ok
+            if not ok:
+                allowed = False
+                reasons.append(f"robots.txt запрещает доступ к {p} (RFC 9309)")
+
+        if robots.unavailable and policy.robots.fail_closed_on_server_error:
+            allowed = False
+            reasons.append(
+                f"robots.txt недоступен (HTTP {robots.status}); fail-closed: источник пропущен"
+            )
+        if robots.forbidden_all and policy.robots.disallow_on_auth_required:
+            allowed = False
+            reasons.append("robots.txt требует авторизации (401/403): доступ запрещён")
+
+        crawl_delay = robots.crawl_delay(settings.user_agent) if policy.robots.honor_crawl_delay else None
+        request_rate = (
+            robots.request_rate(settings.user_agent) if policy.robots.honor_request_rate else None
+        )
 
     # 3. ToS-эвристики по тексту (если передан)
     signals: list[TosSignal] = analyze_tos(tos_text) if tos_text else []
@@ -203,8 +219,8 @@ def audit_source(
     return AuditResult(
         source_id=source.id,
         allowed=allowed,
-        robots_status=robots.status,
-        robots_url=robots.source_url or _robots_url(str(source.site_url)),
+        robots_status=robots_status,
+        robots_url=robots_url,
         robots_allowed_paths=checked_paths,
         crawl_delay=crawl_delay,
         request_rate=request_rate,

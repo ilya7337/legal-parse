@@ -1,0 +1,13 @@
+# HTML-страницы для извлечения основного текста (readability-подобно).
+# robots.txt проверяется по URL страницы + её сайту.
+
+pages:
+  - source_id: peps_python
+    url: https://peps.python.org/pep-0008/
+    enabled: true
+    fixture: tests/fixtures/page_article.html
+
+  - source_id: wikipedia_ml
+    url: https://en.wikipedia.org/wiki/Machine_learning
+    enabled: true
+    fixture: tests/fixtures/page_wiki.html

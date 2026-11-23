@@ -1,0 +1,34 @@
+# Публичные JSON API для сбора. Правовой профиль источника — в sources.yaml (source_id).
+# Ограничение: только публичные API без авторизации; заголовки только честные.
+
+apis:
+  - source_id: github_psf_issues
+    endpoint: https://api.github.com/repos/psf/requests/issues
+    method: GET
+    items_path: ""            # ответ — массив
+    fields:
+      title: title
+      url: html_url
+      text: body
+      published_at: created_at
+      author: user.login
+    enabled: true
+    limit: 10
+    fixture: tests/fixtures/api_github.json
+
+  - source_id: hn_algolia
+    endpoint: http://hn.algolia.com/api/v1/search_by_date
+    method: GET
+    items_path: hits
+    params:
+      query: python
+      tags: story
+    fields:
+      title: title
+      url: url
+      text: story_text
+      published_at: created_at
+      author: author
+    enabled: true
+    limit: 10
+    fixture: tests/fixtures/api_hn.json
