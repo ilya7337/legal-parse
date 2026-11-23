@@ -46,6 +46,11 @@ LegitFeed — MVP аналога Whytrend: непрерывный, юридич�
         │  html_collector.py извлечение текста из HTML         │
         │  dataset_importer  локальные/URL/HuggingFace датасеты│
         │  specs.py          конфиги apis/pages/datasets.yaml  │
+        │  secrets.py        секреты API из env (не из конфига) │
+        │  pagination.py     многостраничный сбор (page/offset/ │
+        │                    next_link)                         │
+        │  browser.py        Playwright-рендер (опционально)    │
+        │  crawl/spider.py   Scrapy-краулинг (опционально)      │
         └───────────────────────┬─────────────────────────────┘
                                 │ RawItem[]
         ┌───────────────────────▼─────────────────────────────┐

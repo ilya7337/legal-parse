@@ -29,6 +29,35 @@ apis:
       text: story_text
       published_at: created_at
       author: author
+    pagination:
+      mode: page
+      page_param: page
+      max_pages: 3
     enabled: true
     limit: 10
     fixture: tests/fixtures/api_hn.json
+
+  # Пример легального платного API: секрет берётся из переменной окружения
+  # и НИКОГДА не хранится в конфиге. Запуск:
+  #   $env:LEGITFEED_GITLAB_TOKEN="..." ; legitfeed collect
+  - source_id: gitlab_api
+    endpoint: https://gitlab.com/api/v4/projects
+    method: GET
+    items_path: ""
+    fields:
+      title: name_with_namespace
+      url: web_url
+      text: description
+      published_at: created_at
+    auth:
+      type: header
+      env: LEGITFEED_GITLAB_TOKEN
+      header_name: PRIVATE-TOKEN
+    pagination:
+      mode: page
+      page_param: page
+      per_page_param: per_page
+      per_page: 20
+      max_pages: 3
+    enabled: false
+    limit: 30

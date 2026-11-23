@@ -78,6 +78,32 @@ class FieldMap(BaseModel):
     author: str = "author"
 
 
+class AuthSpec(BaseModel):
+    """Авторизация по секрету из переменной окружения.
+
+    Секрет **никогда не хранится в конфиге** — только имя переменной окружения.
+    """
+
+    type: Literal["bearer", "header", "query"] = "header"
+    env: str                                   # имя переменной окружения
+    header_name: str | None = None             # header/bearer: имя заголовка
+    param_name: str | None = None              # query: имя параметра
+
+
+class PaginationSpec(BaseModel):
+    """Многостраничный сбор API."""
+
+    mode: Literal["page", "offset", "next_link"] = "page"
+    page_param: str = "page"                   # mode=page
+    start_page: int = 1
+    max_pages: int = 1                         # максимум страниц (1 = одна)
+    per_page_param: str | None = None
+    per_page: int | None = None
+    offset_param: str = "offset"               # mode=offset
+    limit_param: str = "limit"
+    next_path: str | None = None               # путь к URL следующей страницы в JSON
+
+
 class APISpec(BaseModel):
     source_id: str
     endpoint: str
@@ -85,6 +111,8 @@ class APISpec(BaseModel):
     items_path: str = ""            # путь к списку записей в JSON-ответе
     fields: FieldMap = Field(default_factory=FieldMap)
     params: dict = Field(default_factory=dict)
+    auth: AuthSpec | None = None
+    pagination: PaginationSpec | None = None
     enabled: bool = True
     limit: int = 20
     fixture: str | None = None
@@ -95,6 +123,9 @@ class PageSpec(BaseModel):
     url: str
     enabled: bool = True
     fixture: str | None = None
+    render_js: bool = False                  # рендерить через Playwright
+    wait_selector: str | None = None         # ждать появления селектора
+    urls: list[str] = Field(default_factory=list)  # многостраничный сбор (доп. URL)
 
 
 class DatasetSpec(BaseModel):

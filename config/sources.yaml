@@ -103,6 +103,20 @@ sources:
     approved_by: "legal-review"
     approved_at: "2025-11-01"
 
+  - id: gitlab_api
+    name: "GitLab API — публичные проекты (пример платного API по токену)"
+    kind: api
+    site_url: "https://gitlab.com"
+    license: "GitLab API: доступ по персональному токену; публичные данные проектов"
+    license_url: "https://docs.gitlab.com/api/"
+    tos_allow_feed: true
+    contains_personal_data: false
+    rate_limit_rps: 0.5
+    min_delay_seconds: 2.0
+    categories: [engineering, git]
+    approved_by: "legal-review"
+    approved_at: "2025-11-01"
+
   - id: peps_python
     name: "PEP — Python Enhancement Proposals"
     kind: page

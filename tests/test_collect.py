@@ -80,7 +80,7 @@ class _Session:
         self.responses = list(responses)
         self.calls = 0
 
-    def get(self, url, timeout=None):
+    def get(self, url, timeout=None, headers=None, params=None):
         self.calls += 1
         return self.responses.pop(0)
 

@@ -42,6 +42,44 @@ MVP-система мониторинга классифицированных �
 Правовой профиль каждого источника — в `config/sources.yaml` (`kind: feed|api|page|dataset`).
 Для датасетов robots.txt не применяется (это не краулинг), но лицензия обязательна.
 
+### Токены, пагинация и динамические страницы
+
+**API-токены (легальные платные API).** Секрет задаётся только через переменную
+окружения и никогда не хранится в конфиге:
+
+```yaml
+# config/apis.yaml
+- source_id: gitlab_api
+  endpoint: https://gitlab.com/api/v4/projects
+  auth:
+    type: header            # bearer | header | query
+    env: LEGITFEED_GITLAB_TOKEN
+    header_name: PRIVATE-TOKEN
+```
+
+```powershell
+$env:LEGITFEED_GITLAB_TOKEN = "..."
+legitfeed collect
+```
+
+**Многостраничный сбор API** — блок `pagination` (`mode: page|offset|next_link`,
+`max_pages`, `per_page`). Секреты из query/заголовков не попадают в кэш (в файл
+кэша пишется базовый URL без секрета).
+
+**Динамические страницы (Playwright)** — флаг `render_js: true` (+ `wait_selector`)
+в `config/pages.yaml`. Playwright — опциональная зависимость (`pip install
+playwright && playwright install chromium`); без него источник уходит в `error`,
+не роняя пайплайн.
+
+**Многостраничное извлечение из HTML** — список `urls` в `config/pages.yaml`.
+
+**Краулинг на Scrapy** (опционально, `pip install scrapy`): рекурсивный обход
+списка статей с пагинацией, уважением robots.txt и авто-троттлингом:
+
+```powershell
+legitfeed crawl https://example.com/news --next-css "a.next::attr(href)" --max-pages 10
+```
+
 ---
 
 ## 2. Быстрый старт

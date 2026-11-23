@@ -11,3 +11,11 @@ pages:
     url: https://en.wikipedia.org/wiki/Machine_learning
     enabled: true
     fixture: tests/fixtures/page_wiki.html
+
+  # Динамическая страница: рендерится через Playwright (опционально).
+  # Если Playwright не установлен — источник попадёт в error (не падает пайплайн).
+  - source_id: dynamic_example
+    url: https://example.com/app
+    render_js: true
+    wait_selector: ".app-root"
+    enabled: false

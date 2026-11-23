@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from legitfeed.collect.api_collector import APICollector, extract_records, full_url, to_raw_item
-from legitfeed.collect.specs import APISpec, FieldMap, load_api_specs
+from legitfeed.collect.specs import APISpec, AuthSpec, FieldMap, load_api_specs
 from legitfeed.legal.auditor import RobotsFetcher
 from legitfeed.legal.registry import Source
 
@@ -91,3 +91,24 @@ def test_collect_one_offline(tmp_settings, policy, registry):
     assert len(items) == 3
     assert stats.from_fixture is True
     assert all(i.source_id == "github_psf_issues" for i in items)
+
+
+def test_collect_one_missing_secret_denied(tmp_settings, policy, registry, monkeypatch):
+    monkeypatch.delenv("LEGITFEED_MISSING_TOKEN", raising=False)
+    spec = APISpec(
+        source_id="github_psf_issues",
+        endpoint="https://api.github.com/repos/psf/requests/issues",
+        items_path="",
+        fields=FieldMap(title="title", url="html_url", text="body"),
+        auth=AuthSpec(type="header", env="LEGITFEED_MISSING_TOKEN", header_name="X-Token"),
+        fixture="tests/fixtures/api_github.json",
+    )
+    source = registry.get("github_psf_issues")
+    collector = APICollector(
+        settings=tmp_settings, policy=policy,
+        robots_fetcher=_allow_fetcher(tmp_path=tmp_settings.data_dir, site=str(source.site_url)),
+    )
+    items, audit, stats = collector.collect_one(spec, source)
+    assert items == []
+    assert stats.status == "denied"
+    assert "LEGITFEED_MISSING_TOKEN" in stats.error

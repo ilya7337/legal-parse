@@ -107,6 +107,37 @@ def cmd_detect(args) -> int:
     return 0
 
 
+def cmd_crawl(args) -> int:
+    """Многостраничный краулинг на Scrapy (опционально, robots.txt соблюдается)."""
+    from legitfeed.crawl.spider import ScrapyUnavailableError, run_crawl
+
+    try:
+        items = run_crawl(
+            args.start_urls,
+            article_css=args.article_css,
+            title_css=args.title_css,
+            body_css=args.body_css,
+            next_css=args.next_css,
+            max_pages=args.max_pages,
+            allowed_domains=args.allowed_domains or None,
+        )
+    except ScrapyUnavailableError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+    settings = _configure(args)
+    out = settings.path("raw") / "crawl_items.jsonl"
+    with out.open("w", encoding="utf-8") as f:
+        for item in items:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    _print({"collected": len(items), "saved_to": str(out), "sample": items[:3]})
+    print(
+        "Заметка: robots.txt соблюдался Scrapy автоматически. Для включения в датасет "
+        "добавьте источник в config/sources.yaml и импортируйте через конвейер."
+    )
+    return 0
+
+
 def cmd_dataset(args) -> int:
     settings = _configure(args)
     from legitfeed.models import AnomalyRecord
@@ -152,6 +183,7 @@ def _seed_robots_cache(settings) -> None:
         # API / HTML-источники (разрешено всё — публичные ресурсы)
         "https://api.github.com/robots.txt": "allow_all_robots.txt",
         "http://hn.algolia.com/robots.txt": "allow_all_robots.txt",
+        "https://gitlab.com/robots.txt": "allow_all_robots.txt",
         "https://peps.python.org/robots.txt": "allow_all_robots.txt",
         "https://en.wikipedia.org/robots.txt": "allow_all_robots.txt",
     }
@@ -245,6 +277,14 @@ def build_parser() -> argparse.ArgumentParser:
     common(sub.add_parser("clean", help="очистка сырых данных"))
     common(sub.add_parser("detect", help="детекция и объяснение аномалий"))
     common(sub.add_parser("dataset", help="собрать и провалидировать датасет"))
+    p_crawl = sub.add_parser("crawl", help="многостраничный краулинг на Scrapy")
+    p_crawl.add_argument("start_urls", nargs="+")
+    p_crawl.add_argument("--article-css", default="article a::attr(href)")
+    p_crawl.add_argument("--title-css", default="h1::text")
+    p_crawl.add_argument("--body-css", default="article p::text")
+    p_crawl.add_argument("--next-css", default="")
+    p_crawl.add_argument("--max-pages", type=int, default=5)
+    p_crawl.add_argument("--allowed-domains", nargs="*")
     p_run = common(sub.add_parser("run-all", help="весь пайплайн"))
     p_run.add_argument("--not-strict", action="store_true")
 
@@ -270,6 +310,7 @@ COMMANDS = {
     "clean": cmd_clean,
     "detect": cmd_detect,
     "dataset": cmd_dataset,
+    "crawl": cmd_crawl,
     "run-all": cmd_run_all,
     "demo": cmd_demo,
     "status": cmd_status,

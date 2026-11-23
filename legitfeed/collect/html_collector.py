@@ -93,11 +93,54 @@ class HTMLCollector:
         self.client = client or PoliteHttpClient(self.settings, self.policy)
         self.robots_fetcher = robots_fetcher
 
+    def _fetch_one(
+        self,
+        page: PageSpec,
+        source: Source,
+        url: str,
+        stats: CollectionStats,
+        online: bool,
+    ) -> str | None:
+        """Получить HTML одной страницы: Playwright (render_js) или обычный GET/фикстура."""
+        if online:
+            if page.render_js:
+                from legitfeed.collect.browser import (
+                    PlaywrightUnavailableError,
+                    render_html,
+                )
+
+                try:
+                    return render_html(url, wait_selector=page.wait_selector)
+                except PlaywrightUnavailableError as exc:
+                    stats.error = stats.error or str(exc)
+                    return None
+            result = self.client.get(url, host_key=source.host)
+            if result.ok:
+                return result.text
+            stats.error = stats.error or result.error or "empty response"
+            return None
+
+        # offline: фикстура только на первую страницу
+        if stats.from_fixture:
+            return None
+        if page.fixture:
+            try:
+                stats.from_fixture = True
+                return load_fixture(page.fixture)
+            except FileNotFoundError as exc:
+                stats.status = "error"
+                stats.error = str(exc)
+                return None
+        if not stats.error:
+            stats.error = "no data (offline without fixture)"
+        return None
+
     def collect_one(
         self, page: PageSpec, source: Source
     ) -> tuple[list[RawItem], AuditResult, CollectionStats]:
+        urls = [page.url] + [u for u in (page.urls or []) if u]
         audit = audit_source(
-            source, paths=[page.url], policy=self.policy,
+            source, paths=urls, policy=self.policy,
             robots_fetcher=self.robots_fetcher, strict=True,
         )
         stats = CollectionStats(source_id=source.id)
@@ -106,47 +149,34 @@ class HTMLCollector:
             stats.error = "; ".join(audit.reasons) or "denied by legal audit"
             return [], audit, stats
 
-        html: str | None = None
-        if not self.settings.offline:
-            result = self.client.get(page.url, host_key=source.host)
-            if result.ok:
-                html = result.text
-            else:
-                stats.error = result.error or "empty response"
+        items: list[RawItem] = []
+        online = not self.settings.offline
+        for url in urls:
+            html = self._fetch_one(page, source, url, stats, online)
+            if html is None:
+                continue
+            article = extract_article(html, url)
+            if not article["text"].strip():
+                continue
+            item = RawItem(
+                source_id=source.id,
+                title=article["title"] or source.name,
+                link=article["url"] or url,
+                summary_html=article["text"],
+                published_at=parse_datetime(article["published_at"]),
+                author=None,
+                tags=[],
+                license=source.license,
+                license_url=source.license_url,
+            ).ensure_hash()
+            items.append(item)
 
-        if html is None and page.fixture:
-            try:
-                html = load_fixture(page.fixture)
-                stats.from_fixture = True
-            except FileNotFoundError as exc:
-                stats.status = "error"
-                stats.error = str(exc)
-                return [], audit, stats
-
-        if html is None:
+        if not items:
             stats.status = "error"
-            stats.error = stats.error or "no data (offline without fixture)"
+            stats.error = stats.error or "не удалось извлечь текст страницы"
             return [], audit, stats
-
-        article = extract_article(html, page.url)
-        if not article["text"].strip():
-            stats.status = "error"
-            stats.error = "не удалось извлечь текст страницы"
-            return [], audit, stats
-
-        item = RawItem(
-            source_id=source.id,
-            title=article["title"] or source.name,
-            link=article["url"] or page.url,
-            summary_html=article["text"],
-            published_at=parse_datetime(article["published_at"]),
-            author=None,
-            tags=[],
-            license=source.license,
-            license_url=source.license_url,
-        ).ensure_hash()
-        stats.items = 1
-        return [item], audit, stats
+        stats.items = len(items)
+        return items, audit, stats
 
     def collect(self, pairs: list[tuple[PageSpec, Source]]) -> CollectionResult:
         result = CollectionResult()

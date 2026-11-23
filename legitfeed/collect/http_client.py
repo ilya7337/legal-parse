@@ -108,12 +108,22 @@ class PoliteHttpClient:
 
     # ---------- кэш ----------
 
-    def _cache_file(self, url: str) -> Path:
-        digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
+    @staticmethod
+    def _cache_key(url: str, params: dict | None) -> str:
+        """Ключ кэша: базовый URL + query-параметры (секреты не попадают в файл)."""
+        from urllib.parse import urlencode
+
+        key = url
+        if params:
+            key += "|" + urlencode(sorted(params.items()))
+        return key
+
+    def _cache_file(self, key: str) -> Path:
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:24]
         return self.cache_dir / f"{digest}.json"
 
-    def _read_cache(self, url: str) -> FetchResult | None:
-        path = self._cache_file(url)
+    def _read_cache(self, key: str) -> FetchResult | None:
+        path = self._cache_file(key)
         if not path.exists():
             return None
         try:
@@ -124,20 +134,20 @@ class PoliteHttpClient:
         if age > self.settings.cache_ttl_seconds:
             return None
         return FetchResult(
-            url=url,
+            url=payload.get("url", ""),
             status=payload.get("status", 200),
             text=payload.get("text", ""),
             from_cache=True,
             content_type=payload.get("content_type", ""),
         )
 
-    def _write_cache(self, url: str, result: FetchResult) -> None:
+    def _write_cache(self, key: str, result: FetchResult) -> None:
         try:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
-            self._cache_file(url).write_text(
+            self._cache_file(key).write_text(
                 json.dumps(
                     {
-                        "url": url,
+                        "url": result.url,  # базовый URL без секретов в query
                         "status": result.status,
                         "text": result.text,
                         "content_type": result.content_type,
@@ -152,9 +162,18 @@ class PoliteHttpClient:
 
     # ---------- запрос ----------
 
-    def get(self, url: str, *, host_key: str | None = None, use_cache: bool = True) -> FetchResult:
+    def get(
+        self,
+        url: str,
+        *,
+        host_key: str | None = None,
+        use_cache: bool = True,
+        headers: dict | None = None,
+        params: dict | None = None,
+    ) -> FetchResult:
+        key = self._cache_key(url, params)
         if use_cache:
-            cached = self._read_cache(url)
+            cached = self._read_cache(key)
             if cached is not None:
                 self.stats["cache_hits"] += 1
                 return cached
@@ -170,7 +189,10 @@ class PoliteHttpClient:
             self.stats["throttled_seconds"] += waited
             self.stats["requests"] += 1
             try:
-                resp = self.session.get(url, timeout=self.settings.request_timeout)
+                resp = self.session.get(
+                    url, timeout=self.settings.request_timeout,
+                    headers=headers or None, params=params or None,
+                )
             except requests.RequestException as exc:
                 last_error = f"{type(exc).__name__}: {exc}"
                 if attempt < max_retries:
@@ -203,7 +225,7 @@ class PoliteHttpClient:
                 error=None if resp.status_code < 400 else f"HTTP {resp.status_code}",
             )
             if result.ok:
-                self._write_cache(url, result)
+                self._write_cache(key, result)
             return result
 
         return FetchResult(
