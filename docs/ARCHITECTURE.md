@@ -2,7 +2,7 @@
 
 ## Обзор
 
-LegitFeed — MVP аналога Whytrend: непрерывный, юридически корректный мониторинг
+Непрерывный, юридически корректный мониторинг
 классифицированных открытых источников (RSS/Atom-фидов) с очисткой, объяснением
 аномалий и формированием датасета для ML.
 
@@ -54,37 +54,37 @@ LegitFeed — MVP аналога Whytrend: непрерывный, юридич�
         └───────────────────────┬─────────────────────────────┘
                                 │ RawItem[]
         ┌───────────────────────▼─────────────────────────────┐
-        │  etl/ (этап 2 — очистка)                             │
-        │  pii.py            маскирование ПДн (email/phone/    │
-        │                    snils/passport/ip/token)           │
-        │  cleaner.py        HTML→текст, Unicode-нормализация, │
-        │                    язык, SimHash-дедуп, excerpt-limit │
+        │  etl/ (этап 2 — очистка)                            │
+        │  pii.py            маскирование ПДн (email/phone/   │
+        │                    snils/passport/ip/token)         │
+        │  cleaner.py        HTML→текст, Unicode-нормализация,│
+        │                   язык, SimHash-дедуп, excerpt-limit│
         └───────────────────────┬─────────────────────────────┘
                                 │ CleanDoc[]
         ┌───────────────────────▼─────────────────────────────┐
         │  anomaly/ (этап 3 — аномалии + объяснения)          │
-        │  rules.py          детерминированные проверки         │
-        │  detector.py       z-score + TF-IDF центроид +       │
-        │                    объяснения на естественном языке  │
+        │  rules.py          детерминированные проверки       │
+        │  detector.py       z-score + TF-IDF центроид +      │
+        │                    объяснения на естественном языке │
         └───────────────────────┬─────────────────────────────┘
                                 │ AnomalyRecord[]
         ┌───────────────────────▼─────────────────────────────┐
         │  storage/ (этап 4 — хранение)                       │
-        │  models.py         ORM (sources/documents/anomalies/ │
-        │                    dataset_rows/pipeline_runs)        │
-        │  repository.py     фасад поверх SQLAlchemy           │
+        │  models.py         ORM (sources/documents/anomalies/│
+        │                    dataset_rows/pipeline_runs)      │
+        │  repository.py     фасад поверх SQLAlchemy          │
         └───────────────────────┬─────────────────────────────┘
                                 │
         ┌───────────────────────▼─────────────────────────────┐
         │  dataset/ (этап 5 — разметка и датасет)             │
-        │  labeling.py       weak supervision, сплиты          │
-        │  validation.py     Pandas-валидация (схема, ПДн,     │
-        │                    дубли, leakage, баланс)            │
-        │  builder.py        JSONL/CSV/train/val/test + DataCard│
+        │  labeling.py       weak supervision, сплиты         │
+        │  validation.py     Pandas-валидация (схема, ПДн,    │
+        │                    дубли, leakage, баланс)          │
+        │  builder.py      JSONL/CSV/train/val/test + DataCard│
         └───────────────────────┬─────────────────────────────┘
                                 │
-        ┌───────────────────────▼─────────────────────────────┐
-        │  api/ FastAPI   scheduler/ APScheduler   cli.py      │
+        ┌─────────────────────────▼─────────────────────────────┐
+        │  api/ FastAPI    scheduler/ APScheduler   cli.py      │
         └───────────────────────────────────────────────────────┘
 ```
 
